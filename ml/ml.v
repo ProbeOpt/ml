@@ -1,14 +1,16 @@
-module main
+module ml
 
 import math
 import rand
 
 // Sigmoid activation and its derivative
 fn sigmoid(x f64) f64 {
+    // s($x) -> 1.0 / (1.0 + :e(-$x)
     return 1.0 / (1.0 + math.exp(-x))
 }
 
 fn sigmoid_deriv(y f64) f64 {
+    // d($y) -> $y * (1.0 - $y)
     return y * (1.0 - y)
 }
 
@@ -55,7 +57,7 @@ fn make_weights(rows int, cols int) [][]f64 {
     for i in 0 .. rows {
         w[i] = []f64{len: cols}
         for j in 0 .. cols {
-            // Xavier initialization
+            // Xavier initialization: https://www.geeksforgeeks.org/deep-learning/xavier-initialization/
             w[i][j] = (rand.f64() - 0.5) * 2.0 / math.sqrt(cols)
         }
     }
@@ -147,33 +149,5 @@ pub fn (mut nn NN) train_epochs(inputs [][]f64, targets [][]f64, epochs int) {
         for i in 0 .. inputs.len {
             nn.train(inputs[i], targets[i])
         }
-    }
-}
-
-fn main() {
-    mut my_nn := new_nn(2, 4, 1)  // 2 inputs, 4 hidden neurons, 1 output
-
-    inputs := [
-        [0.0, 0.0],
-        [0.0, 1.0],
-        [1.0, 0.0],
-        [1.0, 1.0],
-    ]
-
-    targets := [
-        [0.0],
-        [1.0],
-        [1.0],
-        [1.0],
-    ]
-
-    println('Training XOR-like problem...')
-    my_nn.train_epochs(inputs, targets, 20000)
-
-    // Test predictions
-    println('Results:')
-    for i, inp in inputs {
-        pred := my_nn.predict(inp)
-        println('${inp} -> ${pred[0]:.4f}  (target: ${targets[i][0]})')
     }
 }
